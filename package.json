@@ -1,0 +1,9 @@
+{
+  "name": "vietlife-online",
+  "version": "0.1.0",
+  "private": true,
+  "description": "VietLife browser game with a small WebSocket server",
+  "scripts": {
+    "start": "node server/server.js"
+  }
+}
