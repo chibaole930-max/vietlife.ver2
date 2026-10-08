@@ -6,3 +6,8 @@
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
+
+# Chấp nhận cả wss://.../ws (không gạch cuối) — rewrite nội bộ sang /ws/
+# trước khi LiteSpeed kịp 301, để WebSocket (không follow redirect) kết nối được
+RewriteEngine On
+RewriteRule ^ws$ /ws/ [L]
