@@ -1,4 +1,4 @@
-# VietLife (2D prototype)
+# VietLife (2D prototype) sybau
 
 Game mô phỏng cuộc sống 2D chạy trên trình duyệt. Giao diện ở `index.html`, JavaScript được chia theo trách nhiệm trong `src/`; không cần build hay backend.
 
