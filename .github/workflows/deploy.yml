@@ -1,0 +1,38 @@
+name: Deploy lên hosting (FTP)
+
+# Tự động deploy mỗi lần push vào nhánh main.
+on:
+  push:
+    branches: [main]
+
+# Không cho 2 lần deploy chạy song song (file state sync của FTP sẽ xung đột).
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Upload lên public_html/
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Đồng bộ files qua FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Có thể override bằng secrets (không set thì dùng giá trị mặc định).
+          port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+          # Khi tự đặt exclude phải giữ lại 3 dòng mặc định của action.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+          log-level: standard
