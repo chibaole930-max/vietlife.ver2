@@ -78,7 +78,7 @@ function finite(value,fallback,max){const n=Number(value);return Number.isFinite
 function clockNow(){const now=Date.now();if(worldClock.t===null)worldClock.t=0;if(players.size)worldClock.t+=(now-worldClock.lastAt)*GAME_MINUTES_PER_MS;worldClock.lastAt=now;return worldClock.t;}
 function remove(peer){if(peer.closed)return;peer.closed=true;clients.delete(peer);if(peer.player){console.log('WebSocket left:',peer.id);players.delete(peer.id);broadcast({type:'leave',id:peer.id});broadcast({type:'players',players:playerList()});}}
 server.on('upgrade',(req,socket,head)=>{
-  const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);if(url.pathname!=='/ws'){socket.destroy();return;}
+  const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);if(url.pathname!=='/ws'&&url.pathname!=='/ws/'&&url.pathname!=='/'){socket.destroy();return;}
   const key=req.headers['sec-websocket-key'];if(!key||req.headers['upgrade']?.toLowerCase()!=='websocket'){console.warn('Rejected WebSocket upgrade:',req.url);socket.destroy();return;}
   const accept=crypto.createHash('sha1').update(key+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: '+accept+'\r\n\r\n');

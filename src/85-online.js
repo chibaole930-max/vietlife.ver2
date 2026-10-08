@@ -11,7 +11,7 @@ function onlineEndpoint(){
     if(url.pathname==='/'||url.pathname==='')url.pathname='/ws';
     return url.toString();
   }
-  return location.protocol==='https:'?'wss://'+location.host+'/ws':'ws://'+location.hostname+':8787/ws';
+  return location.protocol==='https:'?'wss://'+location.host+'/ws/':'ws://'+location.hostname+':8787/ws';
 }
 function onlineStatus(status,message){
   online.status=status; if(status==='connecting'||status==='connected')online.error=''; const dot=$('onlineDot');
