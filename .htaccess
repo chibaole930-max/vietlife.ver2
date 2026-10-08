@@ -1,0 +1,8 @@
+# VietLife — bắt trình duyệt kiểm tra file tĩnh mới mỗi lần tải
+# (không có cái này thì browser cache heuristic, deploy xong khách vẫn thấy bản cũ
+#  cho tới khi hard refresh)
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|css|json|png|svg|ico|txt|md)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
