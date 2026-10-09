@@ -5,7 +5,7 @@ let dpr=1, vw=0, vh=0, zoom=1, baseZoom=1, userZoom=1, camX=0, camY=0, staticCv=
 try{ userZoom=clamp(+localStorage.getItem('vietlife_zoom')||1,.45,2.2); }catch(e){}
 function applyZoom(){ zoom=clamp(baseZoom*userZoom,.35,2.6); const el=document.getElementById('zLvl'); if (el) el.textContent=Math.round(userZoom*100)+'%'; }
 function setUserZoom(z){ userZoom=clamp(z,.45,2.2); applyZoom(); try{ localStorage.setItem('vietlife_zoom',String(userZoom)); }catch(e){} }
-function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); vw=cv.clientWidth; vh=cv.clientHeight; cv.width=Math.round(vw*dpr); cv.height=Math.round(vh*dpr); baseZoom=clamp(Math.min(vw/(TS*26),vh/(TS*16)),.85,1.55); applyZoom(); }
+function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); vw=cv.clientWidth; vh=cv.clientHeight; cv.width=Math.round(vw*dpr); cv.height=Math.round(vh*dpr); baseZoom=clamp(Math.min(vw/(TS*26),vh/(TS*16)),.85,1.8); applyZoom(); }
 window.addEventListener('resize',resize);
 
 // ===== Art: procedural 2.5D Vietnamese street style =====
@@ -419,7 +419,7 @@ function drawChar(x,y,color,name,veh,me,step,face,job,hidden,look=null){
   if (hidden) return;
   look=look||(me&&s?s.look:null); const seed=nameSeed(name), hair=look&&look.hairColor||HAIR[look&&look.hair!=null?look.hair%HAIR.length:seed%4], style=look&&look.hairStyle!=null?look.hairStyle:seed%3, moving=!!step;
   const sw=moving?Math.sin(step):0, bob=moving?Math.abs(Math.cos(step))*1.4:0;
-  ctx.fillStyle='rgba(15,25,15,.3)'; ctx.beginPath(); ctx.ellipse(x,y+2,veh?16:8,4,0,0,7); ctx.fill();
+  ctx.fillStyle='rgba(15,25,15,.3)'; ctx.beginPath(); ctx.ellipse(x,y+2,veh?14:7,3.5,0,0,7); ctx.fill();
   ctx.save(); ctx.translate(x,y); ctx.scale(face<0?-1:1,1);
   const OL='rgba(25,22,30,.9)';
   if (veh===1){ ctx.strokeStyle='#1d1f22'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(-9,-4,5,0,7); ctx.arc(9,-4,5,0,7); ctx.stroke(); ctx.strokeStyle='#9aa4ab'; ctx.lineWidth=.6; ctx.beginPath(); ctx.moveTo(-14,-4); ctx.lineTo(-4,-4); ctx.moveTo(-9,-9); ctx.lineTo(-9,1); ctx.moveTo(4,-4); ctx.lineTo(14,-4); ctx.moveTo(9,-9); ctx.lineTo(9,1); ctx.stroke();
@@ -428,11 +428,11 @@ function drawChar(x,y,color,name,veh,me,step,face,job,hidden,look=null){
     if (veh===3){ ctx.fillStyle='#8b5e3c'; ctx.fillRect(-34,-14,20,8); ctx.fillStyle='#6d4529'; ctx.fillRect(-34,-8,20,2); ctx.fillStyle='#c6955a'; ctx.fillRect(-32,-22,8,8); ctx.fillRect(-23,-20,7,6); ctx.fillStyle='#1d1f22'; ctx.beginPath(); ctx.arc(-24,-3,4.5,0,7); ctx.fill(); }
     ctx.fillStyle='#1d1f22'; ctx.beginPath(); ctx.arc(-10,-4,5,0,7); ctx.arc(11,-4,5,0,7); ctx.fill(); ctx.fillStyle='#b9c0c6'; ctx.beginPath(); ctx.arc(-10,-4,2,0,7); ctx.arc(11,-4,2,0,7); ctx.fill();
     const bc=veh===3?'#3e6fa8':'#c0392b'; ctx.fillStyle=bc; ctx.beginPath(); ctx.moveTo(-13,-8); ctx.quadraticCurveTo(-8,-16,4,-12); ctx.lineTo(12,-14); ctx.lineTo(14,-8); ctx.lineTo(2,-6); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,.3)'; ctx.fillRect(-8,-14,8,1.5); ctx.fillStyle='#1d1f22'; ctx.fillRect(-11,-16,13,3); ctx.strokeStyle='#555'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(11,-13); ctx.lineTo(9,-21); ctx.stroke(); ctx.fillStyle='#fff3b0'; ctx.beginPath(); ctx.arc(13.5,-12,1.8,0,7); ctx.fill(); }
+    ctx.fillStyle='rgba(255,255,255,.3)'; ctx.fillRect(-7,-14,7,1.5); ctx.fillStyle='#1d1f22'; ctx.fillRect(-10,-16,12,3); ctx.strokeStyle='#555'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(11,-13); ctx.lineTo(9,-21); ctx.stroke(); ctx.fillStyle='#fff3b0'; ctx.beginPath(); ctx.arc(13.5,-12,1.8,0,7); ctx.fill(); }
   const by=-(veh?11:0)-bob;
   // legs
   ctx.fillStyle=look&&look.pants||'#2c3a4d';
-  if (!veh){ ctx.save(); ctx.translate(-2,by-9); ctx.rotate(sw*.5); ctx.fillRect(-2,0,4,9); ctx.fillStyle='#1a1a1a'; ctx.fillRect(-2,8,5,2.2); ctx.restore(); ctx.fillStyle='#2c3a4d'; ctx.save(); ctx.translate(2,by-9); ctx.rotate(-sw*.5); ctx.fillRect(-2,0,4,9); ctx.fillStyle='#1a1a1a'; ctx.fillRect(-2,8,5,2.2); ctx.restore(); }
+  if (!veh){ ctx.save(); ctx.translate(-2,by-9); ctx.rotate(sw*.5); ctx.fillRect(-2,0,4,9); ctx.fillStyle='#1a1a1a'; ctx.fillRect(-2,8,5,2.2); ctx.restore(); ctx.fillStyle=look&&look.pants||'#2c3a4d'; ctx.save(); ctx.translate(2,by-9); ctx.rotate(-sw*.5); ctx.fillRect(-2,0,4,9); ctx.fillStyle='#1a1a1a'; ctx.fillRect(-2,8,5,2.2); ctx.restore(); }
   else { ctx.fillRect(-3,by-9,9,4); ctx.fillRect(3,by-7,3,7+(veh===1?Math.sin(step*2)*1.5:0)); }
   // back arm
   ctx.fillStyle=shade(color,-.3); ctx.save(); ctx.translate(-1,by-19); ctx.rotate(veh?-.9:-sw*.6); rr(ctx,-1.8,0,3.6,9,1.8); ctx.fill(); ctx.restore();
@@ -443,9 +443,9 @@ function drawChar(x,y,color,name,veh,me,step,face,job,hidden,look=null){
   // head
   const hy=by-27.5;
   if (style===1 && !(veh>=2)){ ctx.fillStyle=hair; rr(ctx,-7,hy-3,10,12,4); ctx.fill(); }
-  ctx.fillStyle='#f3cfa8'; ctx.beginPath(); ctx.arc(0,hy,6.5,0,7); ctx.fill(); ctx.strokeStyle=OL; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='#f3cfa8'; ctx.beginPath(); ctx.arc(0,hy,6,0,7); ctx.fill(); ctx.strokeStyle=OL; ctx.lineWidth=1; ctx.stroke();
   ctx.fillStyle='#2a1f1a'; ctx.beginPath(); ctx.arc(3,hy+.5,1,0,7); ctx.fill(); ctx.fillStyle='rgba(240,120,110,.45)'; ctx.beginPath(); ctx.arc(3.5,hy+3,1.5,0,7); ctx.fill();
-  if (veh>=2){ ctx.fillStyle=color; ctx.beginPath(); ctx.arc(0,hy-1,7.5,Math.PI*1.05,Math.PI*2.05); ctx.fill(); ctx.strokeStyle=OL; ctx.stroke(); ctx.fillStyle='rgba(255,255,255,.4)'; ctx.fillRect(-3,hy-6,4,1.5); }
+  if (veh>=2){ ctx.fillStyle=color; ctx.beginPath(); ctx.arc(0,hy-1,7,Math.PI*1.05,Math.PI*2.05); ctx.fill(); ctx.strokeStyle=OL; ctx.stroke(); ctx.fillStyle='rgba(255,255,255,.4)'; ctx.fillRect(-3,hy-6,4,1.5); }
   else if (job==='farm'){ ctx.fillStyle='#ead9a0'; ctx.beginPath(); ctx.moveTo(-12,hy-2); ctx.lineTo(0,hy-14); ctx.lineTo(12,hy-2); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#b89d58'; ctx.stroke(); }
   else { ctx.fillStyle=hair; ctx.beginPath(); if(style===0){ctx.arc(0,hy-1,6.8,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-6.8,hy-2,3,4);} else if(style===1){rr(ctx,-7,hy-4,14,7,3);ctx.fill();ctx.fillRect(-7,hy-2,3,7);} else {ctx.arc(-3,hy-3,4,0,7);ctx.arc(2,hy-4,4,0,7);ctx.fill();} }
   if (look&&look.acc===1){ctx.fillStyle='#f4c534';rr(ctx,-7,hy-9,14,3,1.5);ctx.fill();ctx.fillRect(-1,hy-8,2,6);}
@@ -465,7 +465,7 @@ const SHIRTS=['#e74c3c','#3498db','#f1c40f','#2ecc71','#ecf0f1','#9b59b6','#e67e
 function spawnVeh(v){ const tot=ROADS.reduce((a,r)=>a+r.L,0); let pick2=R()*tot, ri=0; for (;ri<ROADS.length-1;ri++){ if (pick2<ROADS[ri].L) break; pick2-=ROADS[ri].L; }
   Object.assign(v,{r:ri,s:R()*ROADS[ri].L,dir:R()<.5?1:-1,sp:2.2+R()*2.4,col:pick(BIKE_COLS),shirt:pick(SHIRTS),helm:pick(['#e74c3c','#f1c40f','#ecf0f1','#2c3e50','#3498db','#e91e63']),cargo:R()<.28?rint(1,4):0,pass:R()<.25}); return v; }
 function initStreetLife(){
-  TRAFFIC.length=0; for (let k=0;k<70;k++) TRAFFIC.push(spawnVeh({}));
+  TRAFFIC.length=0; for (let k=0;k<45;k++) TRAFFIC.push(spawnVeh({}));
   VENDORS.length=0; const fronts=new Set(ALLB.map(b=>b.front.x+','+b.front.y));
   for (let y=0;y<MH;y++) for (let x=0;x<MW;x++){ if (grid[idx(x,y)]!==G.WALK||fronts.has(x+','+y)||railT[idx(x,y)]) continue; const h=hash(x*11,y*17);
     const nearHoan=Math.hypot(x-53.5,(y-34)*.9)<11; if (h<(nearHoan?.06:.022)) VENDORS.push({x:x*TS+16,y:y*TS+20,type:nearHoan&&h<.03?'flower':'ganh',ph:h*50,face:h<.5?1:-1,goods:Math.floor(h*1000)%3}); }
@@ -535,7 +535,7 @@ function drawVendor(v,tt){
   vendorBody(x,y,b,'#a3c9a8');
 }
 function vendorBody(x,y,b,shirt){
-  ctx.fillStyle='#2c3a4d'; ctx.fillRect(x-4,y-10,3.5,10); ctx.fillRect(x+.5,y-10,3.5,10);
+  ctx.fillStyle=look&&look.pants||'#2c3a4d'; ctx.fillRect(x-4,y-10,3.5,10); ctx.fillRect(x+.5,y-10,3.5,10);
   ctx.fillStyle=shirt; rr(ctx,-6+x,y-22+b,12,13,4); ctx.fill(); ctx.strokeStyle='rgba(25,22,30,.8)'; ctx.lineWidth=1; ctx.stroke();
   ctx.fillStyle='#f3cfa8'; ctx.beginPath(); ctx.arc(x,y-27+b,5.5,0,7); ctx.fill();
   ctx.fillStyle='#ead9a0'; ctx.beginPath(); ctx.moveTo(x-12,y-27+b); ctx.lineTo(x,y-39+b); ctx.lineTo(x+12,y-27+b); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#b89d58'; ctx.stroke();
