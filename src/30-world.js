@@ -524,7 +524,7 @@ function drawVendor(v,tt){
     for (let k=0;k<14;k++){ ctx.fillStyle=['#f06a8a','#fff','#f3d34a','#e8402a','#f39ac0'][k%5]; ctx.beginPath(); ctx.arc(x-18+hash(k,7)*16,y-24-hash(7,k)*10,2.6,0,7); ctx.fill(); }
     ctx.fillStyle='#4f9a3f'; for (let k=0;k<5;k++) ctx.fillRect(x-17+k*3.4,y-24,1,6);
     // standing vendor
-    vendorBody(x+16,y,b,'#7fb3d5',s.look); return;
+    vendorBody(x+16,y,b,'#7fb3d5'); return;
   }
   // gánh hàng rong: pole + two baskets
   const gx=x, gy=y-24+b;
@@ -532,7 +532,7 @@ function drawVendor(v,tt){
   for (const sx of [-16,16]){ ctx.strokeStyle='#5b4330'; ctx.lineWidth=.8; ctx.beginPath(); ctx.moveTo(gx+sx-5,gy+12); ctx.lineTo(gx+sx,gy); ctx.lineTo(gx+sx+5,gy+12); ctx.stroke();
     ctx.fillStyle='#c9a46a'; ctx.beginPath(); ctx.ellipse(gx+sx,gy+16,8,6,0,0,7); ctx.fill(); ctx.strokeStyle='#9c7a45'; ctx.stroke();
     const cols=[['#f3d34a','#e67e22'],['#e74c3c','#7cc067'],['#f4f0e6','#c9b893']][v.goods]; for (let k=0;k<5;k++){ ctx.fillStyle=cols[k%2]; ctx.beginPath(); ctx.arc(gx+sx-5+k*2.5,gy+11-(k%2)*2,2.4,0,7); ctx.fill(); } }
-  vendorBody(x,y,b,'#a3c9a8',s.look);
+  vendorBody(x,y,b,'#a3c9a8');
 }
 function vendorBody(x,y,b,shirt,look){
   ctx.fillStyle=look&&look.pants||'#2c3a4d'; ctx.fillRect(x-4,y-10,3.5,10); ctx.fillRect(x+.5,y-10,3.5,10);
