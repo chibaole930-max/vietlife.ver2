@@ -7,7 +7,7 @@ const HAIR_COLORS=['#2a1f1a','#3b2a20','#1b1714','#5a3a25','#b66b32','#d7b56d'];
 let wLook={hair:0,hairColor:HAIR_COLORS[0],pants:PANTS[0],acc:0};
 const TIPS=['Giữ chữ tín thì người ta cho vay, lật kèo thì cả phường biết.','Mua xe đạp trước, chạy đơn gấp nhanh gấp rưỡi.','Ruộng ở bãi giữa sông Hồng, đi qua cầu Long Biên là tới.','Đi hết 5 địa danh Hà Nội được +2 Fame.','Đứng xa đường ray khi tàu chạy qua phố đường tàu.','Lúa → Gạo → Bánh phở → Phở: tự làm cả chuỗi thì lãi nhất.','Món ăn để quá 5 giờ là hỏng, đừng nấu quá tay.','Lạc đường thì bấm M mở bản đồ.'];
 let tipI=0; setInterval(()=>{ const el=$('tTip'); if (el && !$('welcome').hidden){ tipI=(tipI+1)%TIPS.length; el.textContent=TIPS[tipI]; } },4500);
-function showScreen(id){ ['tMain','tNew','tHow'].forEach(k=>$(k).hidden=k!==id); }
+function showScreen(id){ ['tMain','tNew','tHow','tPhone'].forEach(k=>$(k).hidden=k!==id); }
 function showNew(){ showScreen('tNew'); setTimeout(()=>{ try{ $('wName').focus(); }catch(e){} },50); }
 function showWelcome(){
   $('welcome').hidden=false; $('app').classList.add('title'); showScreen('tMain'); $('tTip').textContent=TIPS[tipI];
@@ -23,6 +23,7 @@ function showWelcome(){
 }
 $('wBack').addEventListener('click',()=>showScreen('tMain'));
 $('wHowBack').addEventListener('click',()=>showScreen('tMain'));
+$('wPhoneBack').addEventListener('click',()=>showScreen('tMain'));
 $('wVeh').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if (!b) return; prevVeh=+b.dataset.v; $('wVeh').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
 $('wSw').addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if (!b) return; wColor=b.dataset.c; $('wSw').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
 for (const [id,key] of [['wHair','h'],['wPants','p'],['wAcc','a']]) $(id).addEventListener('click',e=>{ const b=e.target.closest(`[data-${key}]`); if(!b)return; if(key==='h'){wLook.hair=+b.dataset.h;wLook.hairColor=HAIR_COLORS[wLook.hair];} if(key==='p')wLook.pants=b.dataset.p; if(key==='a')wLook.acc=+b.dataset.a; $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
