@@ -263,5 +263,17 @@ const PANELS = {
       <h3>Trong ngày</h3><div class="list">${S.lines.map(l=>`<div class="cmt">${esc(l)}</div>`).join('')||'<p>Một ngày yên ả.</p>'}</div>
       <div class="btns">${btn('nextDay','', 'Sang ngày mới ☀️')}</div>`};
   },
+  phone(p){
+    return {icon:'📞',title:'Điện thoại',html:`
+      <p class="lead">Kết nối với mọi người trong phường</p>
+      <div class="kv"><div><small>Tài khoản</small></div><div><small>Fame</small><b class="famec">${s.fame}</b></div></div>
+      <div class="list">
+        <div class="row"><span class="ic">🌐</span><span class="tx"><b>Phường Online</b><br><small>Kết nối với mọi người</small></span></div>
+        <div class="row"><span class="ic">💾</span><span class="tx"><b>Lưu Game</b><br><small>Lưu tiến độ lên đám mây</small></span></div>
+        <div class="row"><span class="ic">📇</span><span class="tx"><b>Hồ Sơ</b><br><small>Xem thông tin nhân vật</small></span></div>
+      </div>
+      <div class="gbtns"><button class="gbtn sm" onclick="closePanel()">QUAY LẠI</button></div>
+    `};
+  },
 };
 function custRange(){ const base=3+Math.floor(s.rep/25)+Math.floor(s.fame/4); const m=s.unlocks.rest?1.8:1; return `${Math.round(base*m)}–${Math.round((base+3)*m)}`; }
