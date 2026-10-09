@@ -7,10 +7,10 @@ let near = null;         // what the player stands next to
 const player = {path:[], pending:null, moving:false, face:1, step:0};
 const keys = {};
 
-function newState(name,color){
+function newState(name,color,look={}){
   const hf=BY.home.front;
   const st = {
-    v:1, name, color, bio:'Mới chuyển đến phường, đang tìm việc.',
+    v:1, name, color, look:{hair:look.hair||0,pants:look.pants||'#2c3a4d',acc:look.acc||0}, bio:'Mới chuyển đến phường, đang tìm việc.',
     money:300000, fame:0, rep:50, t:0, day:1,
     x:hf.x*TS+TS/2, y:hf.y*TS+TS/2,
     veh:0, vehs:[0], inv:{}, food:[], carry:[], orders:[], ordersAt:-999,

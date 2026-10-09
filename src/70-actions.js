@@ -2,6 +2,9 @@
 // ---------- Welcome & boot ----------
 const COLORS=['#f4c534','#e8893a','#e85d8f','#45a9da','#86b84a','#b35ad0','#2fb3a5','#f0604f'];
 let wColor=COLORS[0];
+const PANTS=['#2c3a4d','#1d2633','#4b5563','#5a4035','#d6c7a1','#273b32'];
+const HAIR_COLORS=['#2a1f1a','#3b2a20','#1b1714','#5a3a25','#b66b32','#d7b56d'];
+let wLook={hair:0,hairColor:HAIR_COLORS[0],pants:PANTS[0],acc:0};
 const TIPS=['Giữ chữ tín thì người ta cho vay, lật kèo thì cả phường biết.','Mua xe đạp trước, chạy đơn gấp nhanh gấp rưỡi.','Ruộng ở bãi giữa sông Hồng, đi qua cầu Long Biên là tới.','Đi hết 5 địa danh Hà Nội được +2 Fame.','Đứng xa đường ray khi tàu chạy qua phố đường tàu.','Lúa → Gạo → Bánh phở → Phở: tự làm cả chuỗi thì lãi nhất.','Món ăn để quá 5 giờ là hỏng, đừng nấu quá tay.','Lạc đường thì bấm M mở bản đồ.'];
 let tipI=0; setInterval(()=>{ const el=$('tTip'); if (el && !$('welcome').hidden){ tipI=(tipI+1)%TIPS.length; el.textContent=TIPS[tipI]; } },4500);
 function showScreen(id){ ['tMain','tNew','tHow'].forEach(k=>$(k).hidden=k!==id); }
@@ -9,6 +12,9 @@ function showNew(){ showScreen('tNew'); setTimeout(()=>{ try{ $('wName').focus()
 function showWelcome(){
   $('welcome').hidden=false; $('app').classList.add('title'); showScreen('tMain'); $('tTip').textContent=TIPS[tipI];
   $('wSw').innerHTML=COLORS.map(c=>`<button style="background:${c}" data-c="${c}" class="${c===wColor?'on':''}" aria-label="Màu ${c}"></button>`).join('');
+  $('wHair').innerHTML=HAIR_COLORS.map((c,i)=>`<button style="background:${c}" data-h="${i}" class="${i===wLook.hair?'on':''}" aria-label="Tóc ${i+1}"></button>`).join('');
+  $('wPants').innerHTML=PANTS.map(c=>`<button style="background:${c}" data-p="${c}" class="${c===wLook.pants?'on':''}" aria-label="Quần ${c}"></button>`).join('');
+  $('wAcc').innerHTML=['Không','🧢','👓'].map((v,i)=>`<button data-a="${i}" class="${i===wLook.acc?'on':''}" aria-label="Phụ kiện ${v}">${v==='Không'?'✕':v}</button>`).join('');
   const sv=load();
   $('tMenu').innerHTML=(sv?`<button class="gbtn" id="wCont">▶ TIẾP TỤC<small>${esc(sv.name)} · Ngày ${sv.day} · ${kf(sv.money)}</small></button>`:'')+
     `<button class="gbtn ${sv?'blue':''}" id="wNew">${sv?'CHƠI MỚI':'▶ CHƠI NGAY'}</button><button class="gbtn blue" id="wHow">CÁCH CHƠI</button>`;
@@ -19,7 +25,8 @@ $('wBack').addEventListener('click',()=>showScreen('tMain'));
 $('wHowBack').addEventListener('click',()=>showScreen('tMain'));
 $('wVeh').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if (!b) return; prevVeh=+b.dataset.v; $('wVeh').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
 $('wSw').addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if (!b) return; wColor=b.dataset.c; $('wSw').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
-$('wStart').addEventListener('click',()=>{ const n=$('wName').value.trim()||'Người mới'; const st=newState(n,wColor); startGame(st,true); });
+for (const [id,key] of [['wHair','h'],['wPants','p'],['wAcc','a']]) $(id).addEventListener('click',e=>{ const b=e.target.closest(`[data-${key}]`); if(!b)return; if(key==='h'){wLook.hair=+b.dataset.h;wLook.hairColor=HAIR_COLORS[wLook.hair];} if(key==='p')wLook.pants=b.dataset.p; if(key==='a')wLook.acc=+b.dataset.a; $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
+$('wStart').addEventListener('click',()=>{ const n=$('wName').value.trim()||'Người mới'; const st=newState(n,wColor,wLook); startGame(st,true); });
 let prevVeh=0, lastDt=.016;
 function drawPreview(now){
   const c=$('charPrev'); const w=c.clientWidth, h=c.clientHeight; if (!w) return; const r=Math.min(2,window.devicePixelRatio||1);
@@ -69,7 +76,7 @@ function drawTitle(now){
   ctx.setTransform(dpr*z,0,0,dpr*z,-camX*dpr*z,-camY*dpr*z); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=.45; ctx.drawImage(lightsCv,0,0,MW*TS,MH*TS); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
 }
 function startGame(st,fresh){
-  s=st; $('welcome').hidden=true; $('app').classList.remove('title');
+  s=st; s.look=s.look||{hair:0,pants:'#2c3a4d',acc:0}; $('welcome').hidden=true; $('app').classList.remove('title');
   s.carry=(s.carry||[]).filter(c=>BY[c.house]); s.orders=(s.orders||[]).filter(o=>BY[o.house]);
   if (!walkable(Math.floor(s.x/TS),Math.floor(s.y/TS))){ const hf=BY.home.front; s.x=hf.x*TS+TS/2; s.y=hf.y*TS+TS/2; }
   spawnBots();

@@ -83,7 +83,7 @@ function goTo(t,auto=true){
 function tileOf(x,y){ return {x:Math.floor(x/TS),y:Math.floor(y/TS)}; }
 function freeAt(x,y){ const hw=8, hh=5; return walkable(Math.floor((x-hw)/TS),Math.floor((y-hh)/TS)) && walkable(Math.floor((x+hw)/TS),Math.floor((y-hh)/TS)) && walkable(Math.floor((x-hw)/TS),Math.floor((y+hh)/TS)) && walkable(Math.floor((x+hw)/TS),Math.floor((y+hh)/TS)); }
 function updatePlayer(dt){
-  const sp=TS*3.7*VEH[s.veh].sp*dt;
+  const sp=TS*2.5*VEH[s.veh].sp*dt;
   let kx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0), ky=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0);
   player.moving=false;
   if (kx||ky){

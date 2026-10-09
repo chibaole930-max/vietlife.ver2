@@ -10,6 +10,25 @@ const players = new Map();
 const friends = new Map();
 const pendingFriends = new Map();
 const clients = new Set();
+// ---------- Cloud accounts (acc sống mãi, lưu ra đĩa) ----------
+const dataDir = path.join(root, 'data'), accFile = path.join(dataDir, 'accounts.json');
+let accounts = {};
+try { accounts = JSON.parse(fs.readFileSync(accFile, 'utf8')) || {}; } catch {}
+let accDirty = false;
+function saveAccounts(force) {
+  if (!accDirty && !force) return;
+  try { fs.mkdirSync(dataDir, { recursive: true }); fs.writeFileSync(accFile, JSON.stringify(accounts)); accDirty = false; }
+  catch (e) { console.warn('accounts save failed:', e.message); }
+}
+setInterval(() => saveAccounts(), 5000);
+process.on('SIGTERM', () => { saveAccounts(true); process.exit(0); });
+process.on('SIGINT', () => { saveAccounts(true); process.exit(0); });
+function hashPw(pw, salt) { return crypto.scryptSync(String(pw), salt, 32).toString('hex'); }
+function accByToken(t) { if (typeof t !== 'string' || t.length < 16) return null; for (const k in accounts) if (accounts[k].token === t) return k; return null; }
+const authFails = new Map(); // ip -> {n, until}
+function authLocked(ip) { const r = authFails.get(ip); return !!r && r.until > Date.now(); }
+function authFail(ip) { const r = authFails.get(ip) || { n: 0, until: 0 }; r.n++; if (r.n >= 8) { r.n = 0; r.until = Date.now() + 600000; } authFails.set(ip, r); }
+function authOk(ip) { authFails.delete(ip); }
 const GAME_MINUTES_PER_MS = 3 / 1000;
 const DAY_MINUTES = 960;
 const worldClock = {t:null,lastAt:Date.now()};
@@ -45,6 +64,46 @@ function cleanName(value){return String(value||'Người chơi').replace(/[<>\u0
 function handle(peer,msg){
   if(!msg||typeof msg.type!=='string')return;
   const now=Date.now();
+  if(msg.type==='auth'){
+    const ip=peer.ip||'';
+    if(authLocked(ip)){send(peer,{type:'authResult',ok:false,error:'limit'});return;}
+    if(typeof msg.token==='string'&&msg.token.length>=16){
+      const k=accByToken(msg.token);
+      if(k){authOk(ip);peer.account=k;send(peer,{type:'authResult',ok:true,cloud:true,token:msg.token,name:accounts[k].name,save:accounts[k].save});return;}
+      send(peer,{type:'authResult',ok:false,error:'session'});return;
+    }
+    const name=String(msg.name||'').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,24);
+    const pw=typeof msg.password==='string'?msg.password:'';
+    if(!name||pw.length<4){send(peer,{type:'authResult',ok:false,error:'short'});return;}
+    const key=name.toLowerCase(), acc=accounts[key];
+    if(acc){
+      let ok=false;
+      try{ok=crypto.timingSafeEqual(Buffer.from(hashPw(pw,acc.salt),'hex'),Buffer.from(acc.hash,'hex'));}catch{}
+      if(!ok){authFail(ip);send(peer,{type:'authResult',ok:false,error:'wrong'});return;}
+      authOk(ip);peer.account=key;
+      send(peer,{type:'authResult',ok:true,cloud:true,token:acc.token,name:acc.name,save:acc.save});
+      return;
+    }
+    authOk(ip);
+    const salt=crypto.randomBytes(16).toString('hex'), token=crypto.randomBytes(24).toString('hex');
+    accounts[key]={name,salt,hash:hashPw(pw,salt),token,save:null,saveAt:0,createdAt:now};
+    accDirty=true;saveAccounts(true);peer.account=key;
+    send(peer,{type:'authResult',ok:true,cloud:true,token,name,save:null,created:true});
+    return;
+  }
+  if(msg.type==='saveState'){
+    const k=accByToken(msg.token);
+    if(!k||!msg.data||typeof msg.data!=='object')return;
+    try{ if(JSON.stringify(msg.data).length>400000)return; }catch{return;}
+    accounts[k].save=msg.data;accounts[k].saveAt=now;accDirty=true;
+    send(peer,{type:'saveAck',at:now});
+    return;
+  }
+  if(msg.type==='wipeSave'){
+    const k=accByToken(msg.token);
+    if(k){accounts[k].save=null;accounts[k].saveAt=now;accDirty=true;send(peer,{type:'saveAck',at:now});}
+    return;
+  }
   if(msg.type==='join'){
     if(peer.player)return;
     if(players.size===0){worldClock.t=finite(msg.t,0,1e9);worldClock.lastAt=now;}
@@ -82,7 +141,7 @@ server.on('upgrade',(req,socket,head)=>{
   const key=req.headers['sec-websocket-key'];if(!key||req.headers['upgrade']?.toLowerCase()!=='websocket'){console.warn('Rejected WebSocket upgrade:',req.url);socket.destroy();return;}
   const accept=crypto.createHash('sha1').update(key+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: '+accept+'\r\n\r\n');
-  const peer={id:crypto.randomUUID(),socket,buffer:Buffer.alloc(0),closed:false,lastMove:0,lastChat:0};clients.add(peer);socket.setNoDelay(true);socket.on('data',d=>parseFrames(peer,d));socket.on('close',()=>remove(peer));socket.on('end',()=>remove(peer));socket.on('error',err=>{console.warn('WebSocket socket error:',err.message);remove(peer);});if(head?.length)parseFrames(peer,head);console.log('WebSocket connected:',peer.id);
+  const peer={id:crypto.randomUUID(),socket,ip:req.socket.remoteAddress||'',buffer:Buffer.alloc(0),closed:false,lastMove:0,lastChat:0};clients.add(peer);socket.setNoDelay(true);socket.on('data',d=>parseFrames(peer,d));socket.on('close',()=>remove(peer));socket.on('end',()=>remove(peer));socket.on('error',err=>{console.warn('WebSocket socket error:',err.message);remove(peer);});if(head?.length)parseFrames(peer,head);console.log('WebSocket connected:',peer.id);
 });
 setInterval(()=>{if(!players.size){worldClock.lastAt=Date.now();return;}broadcast({type:'clock',t:clockNow(),day:Math.floor(worldClock.t/DAY_MINUTES)+1});},250);
 server.listen(port,'0.0.0.0',()=>console.log(`VietLife online: http://localhost:${port} (WebSocket /ws)`));
